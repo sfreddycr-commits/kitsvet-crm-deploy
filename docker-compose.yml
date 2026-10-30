@@ -15,8 +15,10 @@ services:
       ADMIN_USER: ${ADMIN_USER}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       SITE_URL: ${SITE_URL}
+      RETENTION_DAYS: "14"
     volumes:
       - crm_app:/var/www/html
+      - crm_backups:/var/backups/crm
     depends_on:
       crm-db:
         condition: service_healthy
@@ -50,6 +52,7 @@ services:
 volumes:
   crm_app:
   crm_db:
+  crm_backups:
 
 networks:
   internal:
