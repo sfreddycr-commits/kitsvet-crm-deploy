@@ -79,13 +79,14 @@ if [ ! -f public/legacy/config.php ]; then
 fi
 
 # --- 4. Permitir el scheduler al usuario de Apache -------------------------
-if [ ! -f public/legacy/config_override.php ]; then
-    log "Creando config_override.php (allowed_cron_users)"
-    cat > public/legacy/config_override.php <<'PHP'
-<?php
-// Generado por docker-entrypoint: habilita el scheduler para www-data
-$sugar_config['allowed_cron_users'] = ['www-data'];
-PHP
+OVERRIDE=public/legacy/config_override.php
+if [ -f public/legacy/config.php ] && ! grep -q 'allowed_cron_users' "$OVERRIDE" 2>/dev/null; then
+    log "Habilitando allowed_cron_users para www-data"
+    if [ -f "$OVERRIDE" ]; then
+        sed -i '1a $sugar_config["allowed_cron_users"] = ["www-data"];' "$OVERRIDE"
+    else
+        printf '<?php\n$sugar_config["allowed_cron_users"] = ["www-data"];\n' > "$OVERRIDE"
+    fi
 fi
 
 # --- 5. Permisos de escritura ---------------------------------------------
@@ -100,12 +101,9 @@ for d in . cache logs tmp \
     fi
 done
 
-if [ -f public/legacy/config.php ]; then
-    chown www-data:www-data public/legacy/config.php
-fi
-if [ -f public/legacy/config_override.php ]; then
-    chown www-data:www-data public/legacy/config_override.php
-fi
+for f in public/legacy/config.php "$OVERRIDE"; do
+    if [ -f "$f" ]; then chown www-data:www-data "$f"; fi
+done
 
 # --- 6. Scheduler de SuiteCRM (cada 60 s) ---------------------------------
 if [ "${CRM_CRON_ENABLED:-true}" = "true" ]; then
