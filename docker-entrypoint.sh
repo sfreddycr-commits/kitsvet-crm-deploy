@@ -91,7 +91,7 @@ fi
 
 # --- 5. Branding Kits & Vet CRM --------------------------------------------
 BRAND_DIR=/opt/branding
-BRAND_VERSION=v1
+BRAND_VERSION=v2
 BRAND_STAMP="$APP_DIR/.brand-version"
 if [ -d "$BRAND_DIR" ] && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRAND_VERSION" ]; then
     log "Aplicando branding Kits & Vet CRM ($BRAND_VERSION)"
@@ -113,12 +113,13 @@ if [ -d "$BRAND_DIR" ] && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRA
         cp -f "$BRAND_DIR/favicon.ico" public/favicon.ico
     fi
 
-    # Paleta del tema legacy: azul marino + verde de marca
+    # Paleta del tema legacy (azul marino + verde de marca)
     for pal in public/legacy/themes/suite8/css/Dawn/color-palette.scss \
                public/legacy/themes/suite8/css/Noon/color-palette.scss; do
         if [ -f "$pal" ]; then
             sed -i \
                 -e 's/#534D64/#17548B/g' \
+                -e 's/#534d64/#17548b/g' \
                 -e 's/#5D5670/#14456F/g' \
                 -e 's/#6A6578/#2A6BA5/g' \
                 -e 's/#757083/#3D7AB0/g' \
@@ -134,6 +135,22 @@ if [ -d "$BRAND_DIR" ] && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRA
                 "$pal"
         fi
     done
+
+    # CSS compilado del shell Angular
+    for cssf in public/dist/styles.*.css; do
+        if [ -f "$cssf" ]; then
+            sed -i \
+                -e 's/#534D64/#17548B/g' \
+                -e 's/#534d64/#17548b/g' \
+                -e 's/#EB6657/#17548B/g' \
+                -e 's/#eb6657/#17548b/g' \
+                -e 's/#007bff/#17548B/g' \
+                -e 's/#007BFF/#17548B/g' \
+                -e 's/#778591/#4A5F73/g' \
+                "$cssf"
+        fi
+    done
+
     rm -rf public/legacy/cache/themes/suite8/css public/legacy/cache/themes/suite8/js
 
     printf '%s' "$BRAND_VERSION" > "$BRAND_STAMP"
