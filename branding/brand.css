@@ -1,0 +1,28 @@
+/* Kits & Vet CRM - capa de marca sobre SuiteCRM 8 */
+/* Nota: el aviso "Supercharged by SuiteCRM" se mantiene por exigencia de la AGPL v3, seccion 7(b). */
+:root{
+  --primary-color:#17548B;
+  --primary-color-text:#ffffff;
+  --highlight-bg:#17548B;
+  --highlight-text-color:#ffffff;
+  --focus-ring:0 0 0 .2rem rgba(23,84,139,.25);
+  --primary-50:#eef4fa; --primary-100:#d3e3f2; --primary-200:#a8c7e5;
+  --primary-300:#7dabd8; --primary-400:#528fcb; --primary-500:#17548B;
+  --primary-600:#123F69; --primary-700:#0e3354; --primary-800:#0a2640;
+  --primary-900:#06192b;
+  --blue:#17548B; --blue-500:#17548B; --blue-600:#123F69;
+}
+
+/* Botones y acentos primarios */
+.btn-primary, .btn-main, .scrm-button-primary, button.p-button {
+  background-color:#17548B !important; border-color:#17548B !important;
+}
+.btn-primary:hover, .btn-main:hover, button.p-button:hover {
+  background-color:#123F69 !important; border-color:#123F69 !important;
+}
+
+/* Footer: se oculta la marca de SugarCRM (otra empresa, sugiere afiliacion inexistente).
+   El aviso AGPL obligatorio de SuiteCRM permanece visible, en tamano discreto. */
+.copyright-links a:nth-of-type(2){ display:none !important; }
+.copyright-links a:first-of-type{ font-size:11px; opacity:.45; text-decoration:none; }
+.copyright-links a:first-of-type:hover{ opacity:.85; }
