@@ -26,6 +26,51 @@ if [ -f "$BRAND_DIR/logo.png" ]; then
     cp -f "$BRAND_DIR/logo.png" public/legacy/themes/default/images/company_logo.png
 fi
 [ -f "$BRAND_DIR/favicon.ico" ] && cp -f "$BRAND_DIR/favicon.ico" public/favicon.ico
+if [ -f "$BRAND_DIR/favicon.ico" ]; then
+    cp -f "$BRAND_DIR/favicon.ico" public/dist/themes/suite8/images/favicon.ico
+    cp -f "$BRAND_DIR/favicon.ico" public/legacy/themes/suite8/images/favicon.ico
+fi
+
+# Official SuiteCRM 8.10 community translation; English remains available.
+if [ -f "$BRAND_DIR/es_MX_SuiteCRM_lang_8.10.zip" ]; then
+    unzip -oq "$BRAND_DIR/es_MX_SuiteCRM_lang_8.10.zip" 'include/*' 'modules/*' 'install/*' -d public/legacy
+    # Correct visible gaps in the community pack without altering technical keys.
+    find public/legacy/include public/legacy/modules -type f -name 'es_MX.lang.php' -exec sed -i \
+        -e "s/=> 'Close'/=> 'Cerrar'/g" \
+        -e "s/=> 'Subject'/=> 'Asunto'/g" \
+        -e "s/=> 'Related to'/=> 'Relacionado con'/g" \
+        -e "s/=> 'Start Date'/=> 'Fecha de inicio'/g" \
+        -e "s/=> 'Accept?'/=> '¿Aceptar?'/g" \
+        -e "s/=> 'Status'/=> 'Estado'/g" \
+        -e "s/=> 'Language'/=> 'Idioma'/g" \
+        -e "s/=> 'Username'/=> 'Usuario'/g" \
+        -e "s/=> 'Account Name'/=> 'Nombre de cuenta'/g" \
+        -e "s/=> 'Amount'/=> 'Importe'/g" \
+        -e "s/=> 'Expected Close Date'/=> 'Fecha prevista de cierre'/g" \
+        -e "s/=> 'Type'/=> 'Tipo'/g" \
+        -e "s/=> 'Website'/=> 'Sitio web'/g" \
+        -e "s/=> 'Phone'/=> 'Teléfono'/g" \
+        -e "s/=> 'Office Phone'/=> 'Teléfono de oficina'/g" \
+        -e "s/=> 'Subject:'/=> 'Asunto:'/g" \
+        -e "s/=> 'Start Date:'/=> 'Fecha de inicio:'/g" \
+        -e "s/=> 'Status:'/=> 'Estado:'/g" \
+        -e "s/=> 'Account Name:'/=> 'Nombre de cuenta:'/g" \
+        -e "s/=> 'Amount:'/=> 'Importe:'/g" \
+        -e "s/=> 'Expected Close Date:'/=> 'Fecha prevista de cierre:'/g" \
+        -e "s/=> 'Type:'/=> 'Tipo:'/g" \
+        -e "s/=> 'Website:'/=> 'Sitio web:'/g" \
+        -e "s/=> 'Office Phone:'/=> 'Teléfono de oficina:'/g" \
+        -e "s/'DASHBOARD DE SUITECRM'/'PANEL DE KITS \\& VET CRM'/g" {} +
+fi
+if ! grep -q 'Kits & Vet locale v9' public/legacy/config_override.php; then
+    cat >> public/legacy/config_override.php <<'PHP'
+
+// Kits & Vet locale v9
+$sugar_config['languages']['es_MX'] = 'Español (Latinoamérica)';
+$sugar_config['default_language'] = 'es_MX';
+$sugar_config['system_name'] = 'Kits & Vet CRM';
+PHP
+fi
 
 # --- 3. Manifiesto PWA -----------------------------------------------------
 cat > public/site.webmanifest <<'JSON'
