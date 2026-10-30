@@ -20,7 +20,6 @@ export APP_ENV="${APP_ENV:-prod}"
 
 DB_URL="mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?serverVersion=${DB_SERVER_VERSION}&charset=utf8mb4"
 
-# --- 1. Conexion a base de datos -------------------------------------------
 log "Configurando DATABASE_URL -> ${DB_HOST}:${DB_PORT}/${DB_NAME}"
 if grep -q '^DATABASE_URL=' .env; then
     sed -i "s|^DATABASE_URL=.*|DATABASE_URL=\"${DB_URL}\"|" .env
@@ -28,7 +27,6 @@ else
     printf 'DATABASE_URL="%s"\n' "$DB_URL" >> .env
 fi
 
-# --- 2. Esperar a MySQL ----------------------------------------------------
 log "Esperando MySQL..."
 ready=0
 for _ in $(seq 1 60); do
@@ -56,44 +54,27 @@ if [ "$ready" -ne 1 ]; then
 fi
 log "MySQL disponible."
 
-# --- 3. Instalacion inicial (solo la primera vez) --------------------------
 if [ ! -f public/legacy/config.php ]; then
     log "Instalando SuiteCRM (primera ejecucion)..."
-
     php bin/console suitecrm:app:install \
-        -U "$DB_USER" \
-        -P "$DB_PASSWORD" \
-        -H "$DB_HOST" \
-        -Z "$DB_PORT" \
-        -N "$DB_NAME" \
-        -u "$ADMIN_USER" \
-        -p "$ADMIN_PASSWORD" \
-        -S "$SITE_URL" \
-        -d no \
-        -W true \
+        -U "$DB_USER" -P "$DB_PASSWORD" -H "$DB_HOST" -Z "$DB_PORT" -N "$DB_NAME" \
+        -u "$ADMIN_USER" -p "$ADMIN_PASSWORD" -S "$SITE_URL" -d no -W true \
         --no-interaction
-
     log "Instalacion finalizada."
     chown -R www-data:www-data "$APP_DIR"
 fi
 
-# --- 4. Scheduler: permitir al usuario de Apache ---------------------------
 OVERRIDE=public/legacy/config_override.php
 if [ -f public/legacy/config.php ] && ! grep -qF "'cron']['allowed_cron_users'" "$OVERRIDE" 2>/dev/null; then
     log "Habilitando cron.allowed_cron_users para www-data"
-    if [ ! -f "$OVERRIDE" ]; then
-        printf '<?php\n' > "$OVERRIDE"
-    fi
-    cat >> "$OVERRIDE" <<'PHP'
-$sugar_config['cron']['allowed_cron_users'] = ['www-data'];
-PHP
+    [ -f "$OVERRIDE" ] || printf '<?php\n' > "$OVERRIDE"
+    printf "%s\n" "\$sugar_config['cron']['allowed_cron_users'] = ['www-data'];" >> "$OVERRIDE"
 fi
 
-# --- 5. Branding Kits & Vet CRM --------------------------------------------
+# --- Branding Kits & Vet CRM ---
 BRAND_DIR=/opt/branding
-BRAND_VERSION=v4
+BRAND_VERSION=v5
 BRAND_STAMP="$APP_DIR/.brand-version"
-# azul marino #17548B / verde #3E8B52
 BRAND_SED='s/#534d64/#17548B/gI;s/#778591/#17548B/gI;s/#5d5670/#14456F/gI;s/#6a6578/#2A6BA5/gI;s/#757083/#3D7AB0/gI;s/#9589b3/#7FA6C9/gI;s/#aa9dcc/#A8C4DD/gI;s/#b29eb5/#C5D8E8/gI;s/#337ab7/#17548B/gI;s/#f08377/#3E8B52/gI;s/#5cb85c/#3E8B52/gI;s/#3c763d/#2F6B3E/gI;s/#6ea674/#5AA46A/gI;s/#79996a/#6BA56F/gI;s/#93a4b3/#9DB4C9/gI;s/#94a6b5/#9DB4C9/gI;s/#808f9c/#7E94A8/gI;s/#7096b5/#5B87AE/gI;s/#a29eab/#8FA6BC/gI;s/#007bff/#17548B/gI'
 
 if [ -d "$BRAND_DIR" ] && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRAND_VERSION" ]; then
@@ -101,9 +82,8 @@ if [ -d "$BRAND_DIR" ] && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRA
 
     if [ -f public/dist/index.html ]; then
         sed -i 's|<title>SuiteCRM</title>|<title>Kits \& Vet CRM</title>|' public/dist/index.html
-        if ! grep -q 'dist/brand.css' public/dist/index.html; then
+        grep -q 'dist/brand.css' public/dist/index.html || \
             sed -i 's|</head>|<link rel="stylesheet" href="dist/brand.css"></head>|' public/dist/index.html
-        fi
         [ -f "$BRAND_DIR/brand.css" ] && cp -f "$BRAND_DIR/brand.css" public/dist/brand.css
     fi
 
@@ -112,39 +92,34 @@ if [ -d "$BRAND_DIR" ] && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRA
         cp -f "$BRAND_DIR/logo.png" public/legacy/themes/suite8/images/company_logo.png
         cp -f "$BRAND_DIR/logo.png" public/legacy/themes/default/images/company_logo.png
     fi
-    if [ -f "$BRAND_DIR/favicon.ico" ]; then
-        cp -f "$BRAND_DIR/favicon.ico" public/favicon.ico
-    fi
+    [ -f "$BRAND_DIR/favicon.ico" ] && cp -f "$BRAND_DIR/favicon.ico" public/favicon.ico
 
-    # Tema legacy: SCSS fuente y CSS compilado
     find public/legacy/themes/suite8/css public/legacy/cache/themes -type f \( -name '*.css' -o -name '*.scss' \) 2>/dev/null | while read -r f; do
         sed -i "$BRAND_SED" "$f" || true
     done
-    # CSS compilado del shell Angular
     for f in public/dist/styles.*.css; do
         [ -f "$f" ] && sed -i "$BRAND_SED" "$f" || true
     done
 
+    LANG_FILE=public/legacy/include/language/en_us.lang.php
+    if [ -f "$LANG_FILE" ]; then
+        sed -i "s|'SUITECRM DASHBOARD'|'KITS \& VET DASHBOARD'|" "$LANG_FILE"
+    fi
+    rm -rf public/legacy/cache/themes/suite8/css public/legacy/cache/themes/suite8/js public/legacy/cache/modules public/legacy/cache/smarty/templates_c
+
     printf '%s' "$BRAND_VERSION" > "$BRAND_STAMP"
 fi
 
-# --- 6. Permisos de escritura ---------------------------------------------
-for d in . cache logs tmp \
-         public/legacy/cache \
-         public/legacy/custom \
-         public/legacy/upload \
-         public/legacy/themes; do
+for d in . cache logs tmp public/legacy/cache public/legacy/custom public/legacy/upload public/legacy/themes; do
     if [ -d "$APP_DIR/$d" ]; then
         chown -R www-data:www-data "$APP_DIR/$d"
         chmod -R g+rwX "$APP_DIR/$d"
     fi
 done
-
 for f in public/legacy/config.php "$OVERRIDE" "$BRAND_STAMP"; do
-    if [ -f "$f" ]; then chown www-data:www-data "$f"; fi
+    [ -f "$f" ] && chown www-data:www-data "$f"
 done
 
-# --- 7. Scheduler de SuiteCRM (cada 60 s) ---------------------------------
 if [ "${CRM_CRON_ENABLED:-true}" = "true" ]; then
     log "Iniciando scheduler de SuiteCRM (60s)"
     (
