@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-install -j"$(nproc)" \
-        intl gd zip pdo_mysql mbstring xml soap bcmath opcache ldap imap \
+        intl gd zip pdo_mysql mysqli mbstring xml soap bcmath opcache ldap imap \
     && a2enmod rewrite headers remoteip \
     && rm -rf /var/lib/apt/lists/*
 
