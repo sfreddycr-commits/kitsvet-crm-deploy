@@ -91,8 +91,11 @@ fi
 
 # --- 5. Branding Kits & Vet CRM --------------------------------------------
 BRAND_DIR=/opt/branding
-BRAND_VERSION=v3
+BRAND_VERSION=v4
 BRAND_STAMP="$APP_DIR/.brand-version"
+# azul marino #17548B / verde #3E8B52
+BRAND_SED='s/#534d64/#17548B/gI;s/#778591/#17548B/gI;s/#5d5670/#14456F/gI;s/#6a6578/#2A6BA5/gI;s/#757083/#3D7AB0/gI;s/#9589b3/#7FA6C9/gI;s/#aa9dcc/#A8C4DD/gI;s/#b29eb5/#C5D8E8/gI;s/#337ab7/#17548B/gI;s/#f08377/#3E8B52/gI;s/#5cb85c/#3E8B52/gI;s/#3c763d/#2F6B3E/gI;s/#6ea674/#5AA46A/gI;s/#79996a/#6BA56F/gI;s/#93a4b3/#9DB4C9/gI;s/#94a6b5/#9DB4C9/gI;s/#808f9c/#7E94A8/gI;s/#7096b5/#5B87AE/gI;s/#a29eab/#8FA6BC/gI;s/#007bff/#17548B/gI'
+
 if [ -d "$BRAND_DIR" ] && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRAND_VERSION" ]; then
     log "Aplicando branding Kits & Vet CRM ($BRAND_VERSION)"
 
@@ -113,45 +116,14 @@ if [ -d "$BRAND_DIR" ] && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRA
         cp -f "$BRAND_DIR/favicon.ico" public/favicon.ico
     fi
 
-    # Paleta del tema legacy (azul marino + verde de marca)
-    for pal in public/legacy/themes/suite8/css/Dawn/color-palette.scss \
-               public/legacy/themes/suite8/css/Noon/color-palette.scss; do
-        if [ -f "$pal" ]; then
-            sed -i \
-                -e 's/#534D64/#17548B/g' \
-                -e 's/#534d64/#17548b/g' \
-                -e 's/#5D5670/#14456F/g' \
-                -e 's/#6A6578/#2A6BA5/g' \
-                -e 's/#757083/#3D7AB0/g' \
-                -e 's/#9589B3/#7FA6C9/g' \
-                -e 's/#AA9DCC/#A8C4DD/g' \
-                -e 's/#B29EB5/#C5D8E8/g' \
-                -e 's/#778591/#17548B/g' \
-                -e 's/#337AB7/#17548B/g' \
-                -e 's/#5CB85C/#3E8B52/g' \
-                -e 's/#3C763D/#2F6B3E/g' \
-                -e 's/#6EA674/#5AA46A/g' \
-                -e 's/#79996A/#6BA56F/g' \
-                "$pal"
-        fi
+    # Tema legacy: SCSS fuente y CSS compilado
+    find public/legacy/themes/suite8/css public/legacy/cache/themes -type f \( -name '*.css' -o -name '*.scss' \) 2>/dev/null | while read -r f; do
+        sed -i "$BRAND_SED" "$f" || true
     done
-
     # CSS compilado del shell Angular
-    for cssf in public/dist/styles.*.css; do
-        if [ -f "$cssf" ]; then
-            sed -i \
-                -e 's/#534D64/#17548B/g' \
-                -e 's/#534d64/#17548b/g' \
-                -e 's/#EB6657/#17548B/g' \
-                -e 's/#eb6657/#17548b/g' \
-                -e 's/#007bff/#17548B/g' \
-                -e 's/#007BFF/#17548B/g' \
-                -e 's/#778591/#4A5F73/g' \
-                "$cssf"
-        fi
+    for f in public/dist/styles.*.css; do
+        [ -f "$f" ] && sed -i "$BRAND_SED" "$f" || true
     done
-
-    rm -rf public/legacy/cache/themes/suite8/css public/legacy/cache/themes/suite8/js
 
     printf '%s' "$BRAND_VERSION" > "$BRAND_STAMP"
 fi
