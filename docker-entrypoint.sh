@@ -109,5 +109,18 @@ if [ "${CRM_CRON_ENABLED:-true}" = "true" ]; then
     ) &
 fi
 
+# --- 8. Respaldos automaticos ----------------------------------------------
+if [ "${CRM_BACKUP_ENABLED:-true}" = "true" ]; then
+    log "Respaldos activos (retencion BD ${RETENTION_DAYS:-14} dias)"
+    (
+        while true; do
+            if [ -z "$(find /var/backups/crm -type f -name 'db-*.sql.gz' -mtime -1 2>/dev/null | head -1)" ]; then
+                bash /usr/local/bin/backup.sh now >> "$APP_DIR/logs/backup.log" 2>&1 || true
+            fi
+            sleep 3600
+        done
+    ) &
+fi
+
 log "Iniciando Apache."
 exec "$@"
