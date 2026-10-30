@@ -78,8 +78,18 @@ if [ ! -f public/legacy/config.php ]; then
     chown -R www-data:www-data "$APP_DIR"
 fi
 
-# --- 4. Permisos de escritura ---------------------------------------------
-for d in cache logs tmp \
+# --- 4. Permitir el scheduler al usuario de Apache -------------------------
+if [ ! -f public/legacy/config_override.php ]; then
+    log "Creando config_override.php (allowed_cron_users)"
+    cat > public/legacy/config_override.php <<'PHP'
+<?php
+// Generado por docker-entrypoint: habilita el scheduler para www-data
+$sugar_config['allowed_cron_users'] = ['www-data'];
+PHP
+fi
+
+# --- 5. Permisos de escritura ---------------------------------------------
+for d in . cache logs tmp \
          public/legacy/cache \
          public/legacy/custom \
          public/legacy/upload \
@@ -92,6 +102,21 @@ done
 
 if [ -f public/legacy/config.php ]; then
     chown www-data:www-data public/legacy/config.php
+fi
+if [ -f public/legacy/config_override.php ]; then
+    chown www-data:www-data public/legacy/config_override.php
+fi
+
+# --- 6. Scheduler de SuiteCRM (cada 60 s) ---------------------------------
+if [ "${CRM_CRON_ENABLED:-true}" = "true" ]; then
+    log "Iniciando scheduler de SuiteCRM (60s)"
+    (
+        while true; do
+            su -s /bin/sh www-data -c "cd $APP_DIR && php bin/console schedulers:run" \
+                >> "$APP_DIR/logs/cron.log" 2>&1 || true
+            sleep 60
+        done
+    ) &
 fi
 
 log "Iniciando Apache."
