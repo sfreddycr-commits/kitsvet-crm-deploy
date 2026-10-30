@@ -80,13 +80,14 @@ fi
 
 # --- 4. Permitir el scheduler al usuario de Apache -------------------------
 OVERRIDE=public/legacy/config_override.php
-if [ -f public/legacy/config.php ] && ! grep -q 'allowed_cron_users' "$OVERRIDE" 2>/dev/null; then
-    log "Habilitando allowed_cron_users para www-data"
-    if [ -f "$OVERRIDE" ]; then
-        sed -i '1a $sugar_config["allowed_cron_users"] = ["www-data"];' "$OVERRIDE"
-    else
-        printf '<?php\n$sugar_config["allowed_cron_users"] = ["www-data"];\n' > "$OVERRIDE"
+if [ -f public/legacy/config.php ] && ! grep -qF "'cron']['allowed_cron_users'" "$OVERRIDE" 2>/dev/null; then
+    log "Habilitando cron.allowed_cron_users para www-data"
+    if [ ! -f "$OVERRIDE" ]; then
+        printf '<?php\n' > "$OVERRIDE"
     fi
+    cat >> "$OVERRIDE" <<'PHP'
+$sugar_config['cron']['allowed_cron_users'] = ['www-data'];
+PHP
 fi
 
 # --- 5. Permisos de escritura ---------------------------------------------
