@@ -1,6 +1,4 @@
-# SuiteCRM 8.10.2 - imagen de producción
-# Usa el ZIP de release oficial (ya trae vendor/ y public/dist compilados),
-# por lo que no requiere Composer ni Node durante el build.
+# SuiteCRM 8.10.2 - imagen de produccion con branding Kits & Vet CRM
 FROM php:8.1-apache-bookworm
 
 ARG SUITECRM_VERSION=8.10.2
@@ -22,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && a2enmod rewrite headers remoteip \
     && rm -rf /var/lib/apt/lists/*
 
-# --- php.ini para SuiteCRM -------------------------------------------------
+# --- php.ini de produccion -------------------------------------------------
 RUN { \
         echo 'memory_limit=512M'; \
         echo 'upload_max_filesize=64M'; \
@@ -30,6 +28,9 @@ RUN { \
         echo 'max_execution_time=300'; \
         echo 'max_input_vars=3000'; \
         echo 'date.timezone=UTC'; \
+        echo 'display_errors=Off'; \
+        echo 'display_startup_errors=Off'; \
+        echo 'log_errors=On'; \
         echo 'opcache.enable=1'; \
         echo 'opcache.validate_timestamps=1'; \
         echo 'opcache.revalidate_freq=2'; \
@@ -48,7 +49,7 @@ RUN echo 'ServerName localhost' > /etc/apache2/conf-available/servername.conf \
         > /etc/apache2/conf-available/suitecrm.conf \
     && a2enconf suitecrm
 
-# --- Código de SuiteCRM ----------------------------------------------------
+# --- Codigo de SuiteCRM ----------------------------------------------------
 WORKDIR /var/www/html
 
 RUN curl -fsSL -o /tmp/suitecrm.zip \
@@ -56,6 +57,12 @@ RUN curl -fsSL -o /tmp/suitecrm.zip \
     && unzip -q /tmp/suitecrm.zip -d /var/www/html \
     && rm -f /tmp/suitecrm.zip \
     && chown -R www-data:www-data /var/www/html
+
+# --- Branding Kits & Vet CRM -----------------------------------------------
+COPY branding /opt/branding
+RUN base64 -d /opt/branding/logo.png.b64 > /opt/branding/logo.png \
+    && base64 -d /opt/branding/favicon.ico.b64 > /opt/branding/favicon.ico \
+    && rm -f /opt/branding/*.b64
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
