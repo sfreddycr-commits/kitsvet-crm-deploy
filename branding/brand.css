@@ -1,5 +1,6 @@
-/* Kits & Vet CRM - capa de marca sobre SuiteCRM 8 */
-/* Nota: el aviso "Supercharged by SuiteCRM" se mantiene por exigencia de la AGPL v3, seccion 7(b). */
+/* Kits & Vet CRM - capa de marca sobre SuiteCRM 8
+   Aviso legal: el texto "Supercharged by SuiteCRM" se conserva por exigencia
+   de la GNU AGPL v3, seccion 7(b). No debe eliminarse. */
 :root{
   --primary-color:#17548B;
   --primary-color-text:#ffffff;
@@ -13,16 +14,28 @@
   --blue:#17548B; --blue-500:#17548B; --blue-600:#123F69;
 }
 
-/* Botones y acentos primarios */
-.btn-primary, .btn-main, .scrm-button-primary, button.p-button {
-  background-color:#17548B !important; border-color:#17548B !important;
+/* Superficies principales */
+nav.navbar, .navbar, .navbar-scrm { background-color:#17548B !important; }
+
+/* Acciones primarias */
+.login-button,
+.btn-primary, .btn-main, .btn.btn-primary,
+button.p-button, .p-button.p-button-primary {
+  background-color:#17548B !important;
+  border-color:#17548B !important;
+  color:#ffffff !important;
 }
-.btn-primary:hover, .btn-main:hover, button.p-button:hover {
-  background-color:#123F69 !important; border-color:#123F69 !important;
+.login-button:hover, .btn-primary:hover, .btn-main:hover,
+button.p-button:hover, .p-button.p-button-primary:hover {
+  background-color:#123F69 !important;
+  border-color:#123F69 !important;
 }
 
-/* Footer: se oculta la marca de SugarCRM (otra empresa, sugiere afiliacion inexistente).
-   El aviso AGPL obligatorio de SuiteCRM permanece visible, en tamano discreto. */
+/* Enlaces (sin tocar el enlace del aviso legal) */
+a:not(.footer-link):not(.copyright-links a) { color:#17548B; }
+
+/* Footer: la marca de SugarCRM se oculta (es de otra empresa y sugiere afiliacion).
+   El aviso AGPL obligatorio de SuiteCRM queda visible, discreto. */
 .copyright-links a:nth-of-type(2){ display:none !important; }
 .copyright-links a:first-of-type{ font-size:11px; opacity:.45; text-decoration:none; }
 .copyright-links a:first-of-type:hover{ opacity:.85; }
