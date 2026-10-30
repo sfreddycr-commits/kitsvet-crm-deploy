@@ -11,6 +11,9 @@ cd "$APP_DIR"
 
 log() { printf '[branding] %s\n' "$*"; }
 
+php "$BRAND_DIR/install-gmail-help.php" "$APP_DIR/public/legacy"
+find public/legacy/cache/themes -type f \( -path '*/modules/OutboundEmailAccounts/EditView.tpl' -o -path '*/modules/InboundEmail/EditView.tpl' \) -delete
+
 # --- 1. Titulo del documento ----------------------------------------------
 if [ -f public/dist/index.html ]; then
     sed -i 's|<title>SuiteCRM</title>|<title>Kits \& Vet CRM</title>|' public/dist/index.html
