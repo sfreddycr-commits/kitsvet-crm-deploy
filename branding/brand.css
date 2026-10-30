@@ -86,7 +86,13 @@ nav.navbar .search-bar-term::placeholder { color:#526579 !important; opacity:1; 
   outline-offset:2px;
 }
 nav.navbar :is(a, button):focus-visible { outline-color:#fff; }
-.pagination-count { color:#17324d !important; }
+.pagination-count { color:#fff !important; background:#17548B; padding:2px 4px; border-radius:2px; }
+.btn-danger { background:#a52834 !important; border-color:#a52834 !important; color:#fff !important; }
+.btn-outline-danger { color:#a52834 !important; border-color:#a52834 !important; }
+.btn-outline-danger:hover { background:#a52834 !important; color:#fff !important; }
+.bulk-action-button, .close-button { background:#17548B !important; color:#fff !important; }
+.primary-table-header, .primary-table-header :is(a, span, scrm-label) { color:#17324d !important; }
+.panel-title { color:#fff !important; background:#17548B; padding:2px 4px; }
 
 /* Footer: la marca de SugarCRM se oculta (es de otra empresa y sugiere afiliacion).
    El aviso AGPL obligatorio de SuiteCRM queda visible, discreto. */
