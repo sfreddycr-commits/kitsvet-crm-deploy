@@ -91,7 +91,7 @@ fi
 
 # --- 5. Branding Kits & Vet CRM --------------------------------------------
 BRAND_DIR=/opt/branding
-BRAND_VERSION=v2
+BRAND_VERSION=v3
 BRAND_STAMP="$APP_DIR/.brand-version"
 if [ -d "$BRAND_DIR" ] && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRAND_VERSION" ]; then
     log "Aplicando branding Kits & Vet CRM ($BRAND_VERSION)"
