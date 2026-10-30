@@ -64,8 +64,10 @@ RUN base64 -d /opt/branding/logo.png.b64 > /opt/branding/logo.png \
     && base64 -d /opt/branding/favicon.ico.b64 > /opt/branding/favicon.ico \
     && rm -f /opt/branding/*.b64
 
+# --- Scripts de operacion ---------------------------------------------------
+COPY backup.sh /usr/local/bin/backup.sh
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/backup.sh /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80
 
