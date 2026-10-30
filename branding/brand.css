@@ -42,8 +42,51 @@ button.p-button:hover, .p-button.p-button-primary:hover {
   border-color:#123F69 !important;
 }
 
-/* Enlaces (sin tocar el aviso legal) */
-a:not(.footer-link):not(.copyright-links a) { color:#17548B; }
+/* Links inherit component colors; never force every link to navbar blue. */
+nav.navbar a { color:#fff !important; }
+nav.navbar .dropdown-menu {
+  background:#fff !important;
+  color:#17324d !important;
+}
+nav.navbar .dropdown-menu a,
+nav.navbar .dropdown-menu .dropdown-header,
+nav.navbar .dropdown-menu h6 { color:#17324d !important; }
+nav.navbar .dropdown-menu a:hover,
+nav.navbar .dropdown-menu a:focus-visible {
+  background:#e7eff7 !important;
+  color:#123F69 !important;
+}
+nav.navbar .nav-item.active > a,
+nav.navbar .nav-item.active .top-nav-link,
+nav.navbar .nav-item.active .home-nav-link {
+  color:#fff !important;
+  border-top-color:#fff !important;
+}
+nav.navbar .nav-link-nongrouped:hover,
+nav.navbar .nav-link-grouped:hover,
+nav.navbar .nav-link-activated { background:#123F69 !important; }
+nav.navbar .search-bar-term {
+  background:#fff !important;
+  color:#17324d !important;
+}
+nav.navbar .search-bar-term::placeholder { color:#526579 !important; opacity:1; }
+
+/* Preserve action roles, with readable text on every surface. */
+.settings-button:not(:disabled) {
+  background:#17548B !important;
+  border-color:#17548B !important;
+  color:#fff !important;
+}
+.settings-button:not(:disabled):hover { background:#123F69 !important; }
+.btn-outline-secondary { color:#17548B !important; border-color:#17548B !important; }
+.btn-outline-secondary svg { fill:currentColor !important; }
+.btn-outline-secondary:hover { background:#e7eff7 !important; color:#123F69 !important; }
+:is(a, button, input, select, textarea, [role="tab"]):focus-visible {
+  outline:2px solid #17548B;
+  outline-offset:2px;
+}
+nav.navbar :is(a, button):focus-visible { outline-color:#fff; }
+.pagination-count { color:#17324d !important; }
 
 /* Footer: la marca de SugarCRM se oculta (es de otra empresa y sugiere afiliacion).
    El aviso AGPL obligatorio de SuiteCRM queda visible, discreto. */

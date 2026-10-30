@@ -52,6 +52,15 @@ for f in public/dist/styles.*.css; do
     [ -f "$f" ] && sed -i "$BRAND_SED" "$f" || true
 done
 
+# Scoped contrast corrections, shared by all legacy theme variants.
+for f in public/legacy/themes/suite8/css/*/style.css; do
+    [ -f "$f" ] || continue
+    if ! grep -q 'kv-contrast-v8' "$f"; then
+        printf '\n/* kv-contrast-v8 */\n' >> "$f"
+        cat "$BRAND_DIR/contrast.css" >> "$f"
+    fi
+done
+
 # --- 5. Textos de interfaz: nombre del producto ----------------------------
 # Solo lineas de valor (se omiten comentarios que empiezan con *), para no
 # alterar los avisos de copyright del encabezado de cada archivo.

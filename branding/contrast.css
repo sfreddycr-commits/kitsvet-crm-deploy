@@ -1,0 +1,7 @@
+/* Accessible text on light legacy table headers; preserve semantic colors. */
+table.list.view th,
+table.list.view th a,
+table.list.view th a:visited {
+  color:#17324d !important;
+}
+.pageNumbers { color:#17324d !important; }
