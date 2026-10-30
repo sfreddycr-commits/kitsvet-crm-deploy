@@ -17,6 +17,17 @@
 /* Superficies principales */
 nav.navbar, .navbar, .navbar-scrm { background-color:#17548B !important; }
 
+/* El logo institucional es azul marino: sobre la barra azul necesita fondo claro */
+nav.navbar img[class*="company_logo"],
+nav.navbar .image-company_logo {
+  background:#ffffff !important;
+  border-radius:4px;
+  padding:2px 6px;
+  height:32px !important;
+  width:auto !important;
+  box-sizing:content-box;
+}
+
 /* Acciones primarias */
 .login-button,
 .btn-primary, .btn-main, .btn.btn-primary,
@@ -31,7 +42,7 @@ button.p-button:hover, .p-button.p-button-primary:hover {
   border-color:#123F69 !important;
 }
 
-/* Enlaces (sin tocar el enlace del aviso legal) */
+/* Enlaces (sin tocar el aviso legal) */
 a:not(.footer-link):not(.copyright-links a) { color:#17548B; }
 
 /* Footer: la marca de SugarCRM se oculta (es de otra empresa y sugiere afiliacion).
