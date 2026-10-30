@@ -20,7 +20,6 @@ export APP_ENV="${APP_ENV:-prod}"
 
 DB_URL="mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?serverVersion=${DB_SERVER_VERSION}&charset=utf8mb4"
 
-# --- 1. Conexion a base de datos -------------------------------------------
 log "Configurando DATABASE_URL -> ${DB_HOST}:${DB_PORT}/${DB_NAME}"
 if grep -q '^DATABASE_URL=' .env; then
     sed -i "s|^DATABASE_URL=.*|DATABASE_URL=\"${DB_URL}\"|" .env
@@ -28,7 +27,6 @@ else
     printf 'DATABASE_URL="%s"\n' "$DB_URL" >> .env
 fi
 
-# --- 2. Esperar a MySQL ----------------------------------------------------
 log "Esperando MySQL..."
 ready=0
 for _ in $(seq 1 60); do
@@ -56,7 +54,6 @@ if [ "$ready" -ne 1 ]; then
 fi
 log "MySQL disponible."
 
-# --- 3. Instalacion inicial ------------------------------------------------
 if [ ! -f public/legacy/config.php ]; then
     log "Instalando SuiteCRM (primera ejecucion)..."
     php bin/console suitecrm:app:install \
@@ -67,7 +64,6 @@ if [ ! -f public/legacy/config.php ]; then
     chown -R www-data:www-data "$APP_DIR"
 fi
 
-# --- 4. Scheduler: permitir al usuario de Apache ---------------------------
 OVERRIDE=public/legacy/config_override.php
 if [ -f public/legacy/config.php ] && ! grep -qF "'cron']['allowed_cron_users'" "$OVERRIDE" 2>/dev/null; then
     log "Habilitando cron.allowed_cron_users para www-data"
@@ -75,9 +71,9 @@ if [ -f public/legacy/config.php ] && ! grep -qF "'cron']['allowed_cron_users'" 
     printf '%s\n' "\$sugar_config['cron']['allowed_cron_users'] = ['www-data'];" >> "$OVERRIDE"
 fi
 
-# --- 5. Branding Kits & Vet CRM --------------------------------------------
+# --- Branding --------------------------------------------------------------
 BRAND_DIR=/opt/branding
-BRAND_VERSION=v6
+BRAND_VERSION=v7
 BRAND_STAMP="$APP_DIR/.brand-version"
 if [ -d "$BRAND_DIR" ] && [ -f "$BRAND_DIR/apply.sh" ] \
    && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRAND_VERSION" ]; then
@@ -86,7 +82,7 @@ if [ -d "$BRAND_DIR" ] && [ -f "$BRAND_DIR/apply.sh" ] \
     printf '%s' "$BRAND_VERSION" > "$BRAND_STAMP"
 fi
 
-# --- 6. Permisos de escritura ----------------------------------------------
+# --- Permisos --------------------------------------------------------------
 for d in . cache logs tmp public/legacy/cache public/legacy/custom public/legacy/upload public/legacy/themes; do
     if [ -d "$APP_DIR/$d" ]; then
         chown -R www-data:www-data "$APP_DIR/$d"
@@ -97,7 +93,7 @@ for f in public/legacy/config.php "$OVERRIDE" "$BRAND_STAMP"; do
     [ -f "$f" ] && chown www-data:www-data "$f"
 done
 
-# --- 7. Scheduler de SuiteCRM (cada 60 s) ----------------------------------
+# --- Scheduler -------------------------------------------------------------
 if [ "${CRM_CRON_ENABLED:-true}" = "true" ]; then
     log "Iniciando scheduler de SuiteCRM (60s)"
     (
@@ -109,7 +105,7 @@ if [ "${CRM_CRON_ENABLED:-true}" = "true" ]; then
     ) &
 fi
 
-# --- 8. Respaldos automaticos ----------------------------------------------
+# --- Respaldos -------------------------------------------------------------
 if [ "${CRM_BACKUP_ENABLED:-true}" = "true" ]; then
     log "Respaldos activos (retencion BD ${RETENTION_DAYS:-14} dias)"
     (
