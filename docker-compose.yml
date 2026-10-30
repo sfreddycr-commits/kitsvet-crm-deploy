@@ -16,8 +16,7 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       SITE_URL: ${SITE_URL}
     volumes:
-      - crm_uploads:/var/www/html/public/legacy/upload
-      - crm_custom:/var/www/html/public/legacy/custom
+      - crm_app:/var/www/html
     depends_on:
       crm-db:
         condition: service_healthy
@@ -49,9 +48,8 @@ services:
       - internal
 
 volumes:
+  crm_app:
   crm_db:
-  crm_uploads:
-  crm_custom:
 
 networks:
   internal:
