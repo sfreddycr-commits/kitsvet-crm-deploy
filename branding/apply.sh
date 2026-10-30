@@ -20,6 +20,7 @@ if [ -f public/dist/index.html ]; then
     grep -q 'dist/brand.css' public/dist/index.html || \
         sed -i 's|</head>|<link rel="stylesheet" href="dist/brand.css"></head>|' public/dist/index.html
     [ -f "$BRAND_DIR/brand.css" ] && cp -f "$BRAND_DIR/brand.css" public/dist/brand.css
+    sed -i 's|href="dist/brand.css"|href="dist/brand.css?v=12"|;s|href="dist/brand.css?v=[^"]*"|href="dist/brand.css?v=12"|' public/dist/index.html
 fi
 
 # --- 2. Logos y favicon ----------------------------------------------------

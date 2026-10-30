@@ -73,7 +73,7 @@ fi
 
 # --- Branding --------------------------------------------------------------
 BRAND_DIR=/opt/branding
-BRAND_VERSION=v11
+BRAND_VERSION=v12
 BRAND_STAMP="$APP_DIR/.brand-version"
 if [ -d "$BRAND_DIR" ] && [ -f "$BRAND_DIR/apply.sh" ] \
    && [ "$(cat "$BRAND_STAMP" 2>/dev/null || true)" != "$BRAND_VERSION" ]; then
