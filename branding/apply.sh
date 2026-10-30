@@ -61,6 +61,7 @@ if [ -f "$BRAND_DIR/es_MX_SuiteCRM_lang_8.10.zip" ]; then
         -e "s/=> 'Website:'/=> 'Sitio web:'/g" \
         -e "s/=> 'Office Phone:'/=> 'Teléfono de oficina:'/g" \
         -e "s/'DASHBOARD DE SUITECRM'/'PANEL DE KITS \\& VET CRM'/g" {} +
+    php "$BRAND_DIR/translate-es.php" "$APP_DIR/public/legacy"
 fi
 if ! grep -q 'Kits & Vet locale v9' public/legacy/config_override.php; then
     cat >> public/legacy/config_override.php <<'PHP'
@@ -126,6 +127,11 @@ done
 rm -rf public/legacy/cache/themes/suite8/css \
        public/legacy/cache/themes/suite8/js \
        public/legacy/cache/modules \
-       public/legacy/cache/smarty/templates_c
+        public/legacy/cache/smarty/templates_c
+
+# Angular caches language separately from legacy module labels.
+if [ -f bin/console ]; then
+    php bin/console cache:pool:delete cache.app app-metadata-language-strings-es_MX --no-interaction
+fi
 
 log "branding aplicado"
